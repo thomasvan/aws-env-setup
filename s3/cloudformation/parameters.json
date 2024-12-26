@@ -1,0 +1,30 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "p"
+  },
+  {
+    "ParameterKey": "Region",
+    "ParameterValue": "ap-southeast-1"
+  },
+  {
+    "ParameterKey": "AppName",
+    "ParameterValue": "web-app"
+  },
+  {
+    "ParameterKey": "PolicyName",
+    "ParameterValue": "plc-global-p-s3-backup"
+  },
+  {
+    "ParameterKey": "TagEnvironment",
+    "ParameterValue": "Production"
+  },
+  {
+    "ParameterKey": "RetentionDays",
+    "ParameterValue": "730"
+  },
+  {
+    "ParameterKey": "GlacierTransitionDays",
+    "ParameterValue": "365"
+  }
+]

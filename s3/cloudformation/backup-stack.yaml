@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation template for S3 backup user and policy setup"
+
+Parameters:
+  Environment:
+    Type: String
+    Default: p
+    AllowedValues:
+      - d
+      - s
+      - p
+    Description: Environment (d=development, s=staging, p=production)
+
+  Region:
+    Type: String
+    Default: ap-southeast-1
+    Description: AWS Region for the resources
+
+  AppName:
+    Type: String
+    Default: web-app
+    Description: Application name
+
+  PolicyName:
+    Type: String
+    Default: plc-global-p-s3-backup
+    Description: Name of the IAM policy
+
+  TagEnvironment:
+    Type: String
+    Default: Production
+    Description: Environment tag value
+
+  RetentionDays:
+    Type: Number
+    Default: 730
+    Description: Number of days to retain backups
+
+  GlacierTransitionDays:
+    Type: Number
+    Default: 365
+    Description: Number of days after which objects transition to Glacier storage
+
+Resources:
+  BackupPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "This policy grants access to all Put, Get, and List actions for my bucket named as the username"
+      ManagedPolicyName: !Ref PolicyName
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:PutObject"
+              - "s3:GetObject"
+              - "s3:DeleteObjectVersion"
+              - "s3:ListBucket"
+              - "s3:DeleteObject"
+              - "s3:GetObjectVersion"
+            Resource:
+              - !Sub "arn:aws:s3:::s3-${Region}-${Environment}-${AppName}-backup"
+              - !Sub "arn:aws:s3:::s3-${Region}-${Environment}-${AppName}-backup/*"
+
+  BackupUser:
+    Type: "AWS::IAM::User"
+    Properties:
+      UserName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
+      Tags:
+        - Key: Environment
+          Value: !Ref TagEnvironment
+
+  BackupUserAccessKey:
+    Type: "AWS::IAM::AccessKey"
+    Properties:
+      UserName: !Ref BackupUser
+
+  BackupUserPolicyAttachment:
+    Type: "AWS::IAM::UserPolicyAttachment"
+    Properties:
+      PolicyArn: !Ref BackupPolicy
+      UserName: !Ref BackupUser
+
+  BackupBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
+      LifecycleConfiguration:
+        Rules:
+          - Id: GlacierTransitionRule
+            Status: Enabled
+            Transitions:
+              - StorageClass: GLACIER
+                TransitionInDays: !Ref GlacierTransitionDays
+          - Id: ExpirationRule
+            Status: Enabled
+            ExpirationInDays: !Ref RetentionDays
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Environment
+          Value: !Ref TagEnvironment
+
+  BackupBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref BackupBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyUnencryptedObjectUploads
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:PutObject"
+            Resource: !Sub "${BackupBucket.Arn}/*"
+            Condition:
+              StringNotEquals:
+                "s3:x-amz-server-side-encryption": "AES256"
+
+Outputs:
+  AccessKeyId:
+    Description: "Access Key ID for the backup user"
+    Value: !Ref BackupUserAccessKey
+
+  SecretAccessKey:
+    Description: "Secret Access Key for the backup user"
+    Value: !GetAtt BackupUserAccessKey.SecretAccessKey
+
+  BucketName:
+    Description: "Name of the created S3 bucket"
+    Value: !Ref BackupBucket
+
+  UserArn:
+    Description: "ARN of the created IAM user"
+    Value: !GetAtt BackupUser.Arn
