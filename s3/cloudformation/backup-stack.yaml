@@ -95,22 +95,6 @@ Resources:
         - Key: Environment
           Value: !Ref TagEnvironment
 
-  BackupBucketPolicy:
-    Type: "AWS::S3::BucketPolicy"
-    Properties:
-      Bucket: !Ref BackupBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: DenyUnencryptedObjectUploads
-            Effect: Deny
-            Principal: "*"
-            Action: "s3:PutObject"
-            Resource: !Sub "${BackupBucket.Arn}/*"
-            Condition:
-              StringNotEquals:
-                "s3:x-amz-server-side-encryption": "AES256"
-
 Outputs:
   AccessKeyId:
     Description: "Access Key ID for the backup user"
