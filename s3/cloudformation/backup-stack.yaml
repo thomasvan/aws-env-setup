@@ -95,8 +95,6 @@ Resources:
           - Id: ExpirationRule
             Status: Enabled
             ExpirationInDays: !Ref RetentionDays
-      VersioningConfiguration:
-        Status: Enabled
       Tags:
         - Key: Environment
           Value: !Ref TagEnvironment
