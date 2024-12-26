@@ -66,6 +66,8 @@ Resources:
     Type: "AWS::IAM::User"
     Properties:
       UserName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
+      ManagedPolicyArns:
+        - !Ref BackupPolicy
       Tags:
         - Key: Environment
           Value: !Ref TagEnvironment
@@ -73,12 +75,6 @@ Resources:
   BackupUserAccessKey:
     Type: "AWS::IAM::AccessKey"
     Properties:
-      UserName: !Ref BackupUser
-
-  BackupUserPolicyAttachment:
-    Type: "AWS::IAM::UserPolicyAttachment"
-    Properties:
-      PolicyArn: !Ref BackupPolicy
       UserName: !Ref BackupUser
 
   BackupBucket:

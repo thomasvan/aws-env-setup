@@ -7,6 +7,10 @@ aws cloudformation create-stack \
     --parameters file://cloudformation/parameters.json \
     --capabilities CAPABILITY_NAMED_IAM
 
+if [ $? -ne 0 ]; then
+    echo "Failed to create stack"
+    exit 1
+fi
 # Store all credentials in variables
 ACCESS_KEY_ID=$(aws cloudformation describe-stacks --stack-name s3-backup-setup --query 'Stacks[0].Outputs[?OutputKey==`AccessKeyId`].OutputValue' --output text)
 SECRET_ACCESS_KEY=$(aws cloudformation describe-stacks --stack-name s3-backup-setup --query 'Stacks[0].Outputs[?OutputKey==`SecretAccessKey`].OutputValue' --output text)
