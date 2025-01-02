@@ -19,6 +19,8 @@ while [ -z "${ACCESS_KEY_ID}" ]; do
     SECRET_ACCESS_KEY=$(aws cloudformation describe-stacks --stack-name s3-backup-setup --query 'Stacks[0].Outputs[?OutputKey==`SecretAccessKey`].OutputValue' --output text)
     BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name s3-backup-setup --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
     USER_ARN=$(aws cloudformation describe-stacks --stack-name s3-backup-setup --query 'Stacks[0].Outputs[?OutputKey==`UserArn`].OutputValue' --output text)
+done
+
 
     # Print the values
     cat << EOF
@@ -27,6 +29,3 @@ ${BUCKET_NAME}:
   SecretAccessKey: ${SECRET_ACCESS_KEY}
   UserArn: ${USER_ARN}
 EOF
-done
-
-
