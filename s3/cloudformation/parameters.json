@@ -5,7 +5,7 @@
   },
   {
     "ParameterKey": "Region",
-    "ParameterValue": "ap-southeast-1"
+    "ParameterValue": "us-east-1"
   },
   {
     "ParameterKey": "AppName",
