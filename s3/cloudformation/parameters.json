@@ -5,7 +5,7 @@
   },
   {
     "ParameterKey": "Region",
-    "ParameterValue": "us-east-1"
+    "ParameterValue": "ap-southeast-1"
   },
   {
     "ParameterKey": "AppName",
@@ -13,7 +13,7 @@
   },
   {
     "ParameterKey": "PolicyName",
-    "ParameterValue": "plc-global-p-s3-backup"
+    "ParameterValue": "plc-global-s3-backup"
   },
   {
     "ParameterKey": "TagEnvironment",

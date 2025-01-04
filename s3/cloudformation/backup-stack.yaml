@@ -23,7 +23,7 @@ Parameters:
 
   PolicyName:
     Type: String
-    Default: plc-global-p-s3-backup
+    Default: plc-global-s3-backup
     Description: Name of the IAM policy
 
   TagEnvironment:
@@ -41,11 +41,14 @@ Parameters:
     Default: 365
     Description: Number of days after which objects transition to Glacier storage
 
+Conditions:
+  CreatePolicy: !Not [!Equals [!Ref BackupPolicy, "AWS::NoValue"]]
+
 Resources:
   BackupPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      Description: "This policy grants access to all Put, Get, and List actions for my bucket named as the username"
+      Description: "Policy for S3 backup operations"
       ManagedPolicyName: !Ref PolicyName
       PolicyDocument:
         Version: "2012-10-17"
@@ -67,7 +70,10 @@ Resources:
     Properties:
       UserName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
       ManagedPolicyArns:
-        - !Ref BackupPolicy
+        - !If
+          - CreatePolicy
+          - !Ref BackupPolicy
+          - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PolicyName}"
       Tags:
         - Key: Environment
           Value: !Ref TagEnvironment
