@@ -15,7 +15,9 @@ STACK_NAME="$1"
 REGION="${2:-ap-southeast-1}"  # Use ap-southeast-1 as default if not specified
 
 # Check if the policy already exists
-POLICY_NAME="plc-global-s3-backup"
+
+# replace the prefix "s3" from the $STACK_NAME to "plc" as the policy name
+POLICY_NAME=${STACK_NAME/s3-$REGION-/plc-}
 POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='${POLICY_NAME}'].Arn" --output text)
 
 if [ ! -z "$POLICY_ARN" ]; then

@@ -11,19 +11,12 @@ Parameters:
       - p
     Description: Environment (d=development, s=staging, p=production)
 
-  Region:
-    Type: String
-    Default: ap-southeast-1
-    Description: AWS Region for the resources
-
   AppName:
     Type: String
-    Default: web-app
     Description: Application name
 
   PolicyName:
     Type: String
-    Default: plc-global-s3-backup
     Description: Name of the IAM policy
 
   TagEnvironment:
