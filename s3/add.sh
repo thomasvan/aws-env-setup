@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Get the current script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 # Check if stack name is provided
 if [ -z "$1" ]; then
     echo "Usage: $0 <stack-name> [region]"
@@ -21,9 +24,9 @@ if [ ! -z "$POLICY_ARN" ]; then
 
     # Create a temporary template with BackupPolicy resource removed
     sed '/BackupPolicy:/,/PolicyDocument:/d' cloudformation/backup-stack.yaml > cloudformation/backup-stack.tmp.yaml
-    TEMPLATE_FILE="cloudformation/backup-stack.tmp.yaml"
+    TEMPLATE_FILE="$SCRIPT_DIR/cloudformation/backup-stack.tmp.yaml"
 else
-    TEMPLATE_FILE="cloudformation/backup-stack.yaml"
+    TEMPLATE_FILE="$SCRIPT_DIR/cloudformation/backup-stack.yaml"
 fi
 
 # Create the stack with inline parameters
