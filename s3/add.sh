@@ -14,12 +14,6 @@ fi
 STACK_NAME="$1"
 REGION="${2:-ap-southeast-1}"  # Use ap-southeast-1 as default if not specified
 
-# Extract the app name from the stack name
-# Remove the prefix "s3-{region}-{env}-" and the suffix "-backup"
-APP_NAME=$(echo "$STACK_NAME" | sed -E "s/^s3-${REGION}-[psd]-(.+)-backup$/\1/")
-
-echo "Using App Name: ${APP_NAME}"
-
 # Check if the policy already exists
 POLICY_NAME="plc-global-s3-backup"
 POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='${POLICY_NAME}'].Arn" --output text)
@@ -42,7 +36,7 @@ aws cloudformation create-stack \
     --parameters \
         ParameterKey=Environment,ParameterValue=p \
         ParameterKey=Region,ParameterValue="$REGION" \
-        ParameterKey=AppName,ParameterValue="$APP_NAME" \
+        ParameterKey=AppName,ParameterValue="$STACK_NAME" \
         ParameterKey=PolicyName,ParameterValue="$POLICY_NAME" \
         ParameterKey=TagEnvironment,ParameterValue=Production \
         ParameterKey=RetentionDays,ParameterValue=730 \

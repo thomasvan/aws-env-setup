@@ -59,13 +59,13 @@ Resources:
               - "s3:DeleteObject"
               - "s3:GetObjectVersion"
             Resource:
-              - !Sub "arn:aws:s3:::s3-${Region}-${Environment}-${AppName}-backup"
-              - !Sub "arn:aws:s3:::s3-${Region}-${Environment}-${AppName}-backup/*"
+              - !Sub "arn:aws:s3:::${AppName}"
+              - !Sub "arn:aws:s3:::${AppName}/*"
 
   BackupUser:
     Type: "AWS::IAM::User"
     Properties:
-      UserName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
+      UserName: !Sub "${AppName}"
       ManagedPolicyArns:
         - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PolicyName}"
       Tags:
@@ -80,7 +80,7 @@ Resources:
   BackupBucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
+      BucketName: !Sub "${AppName}"
       LifecycleConfiguration:
         Rules:
           - Id: GlacierTransitionRule
