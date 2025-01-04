@@ -6,4 +6,4 @@
 
 ## Create the stack
 
-`./s3/create.sh s3-ap-southeast-1-s-web-app-backup`
+`./s3/add.sh s3-ap-southeast-1-s-web-app-backup`

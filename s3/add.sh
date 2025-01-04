@@ -37,7 +37,6 @@ aws cloudformation create-stack \
     --template-body "file://${TEMPLATE_FILE}" \
     --parameters \
         ParameterKey=Environment,ParameterValue=p \
-        ParameterKey=Region,ParameterValue="$REGION" \
         ParameterKey=AppName,ParameterValue="$STACK_NAME" \
         ParameterKey=PolicyName,ParameterValue="$POLICY_NAME" \
         ParameterKey=TagEnvironment,ParameterValue=Production \
