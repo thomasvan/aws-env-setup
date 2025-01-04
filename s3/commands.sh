@@ -12,16 +12,15 @@ STACK_NAME="$1"
 REGION="${2:-ap-southeast-1}"  # Use ap-southeast-1 as default if not specified
 
 # Check if the policy already exists
-POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='plc-global-p-s3-backup'].Arn" --output text)
+POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='plc-global-s3-backup'].Arn" --output text)
 
+TEMPLATE_FILE="cloudformation/backup-stack.yaml"
 if [ ! -z "$POLICY_ARN" ]; then
     echo "Policy already exists. Using existing policy."
     echo "Using region: ${REGION}"
-    # Create a temporary template without the policy
-    jq 'del(.Resources.BackupPolicy)' cloudformation/backup-stack.yaml > cloudformation/backup-stack.tmp.yaml
+    # Comment out BackupPolicy resource in the template
+    sed '/BackupPolicy:/,/PolicyDocument:/c\  # BackupPolicy has been commented out as it already exists' "$TEMPLATE_FILE" > "cloudformation/backup-stack.tmp.yaml"
     TEMPLATE_FILE="cloudformation/backup-stack.tmp.yaml"
-else
-    TEMPLATE_FILE="cloudformation/backup-stack.yaml"
 fi
 
 # Create the stack with inline parameters
