@@ -41,9 +41,6 @@ Parameters:
     Default: 365
     Description: Number of days after which objects transition to Glacier storage
 
-Conditions:
-  CreatePolicy: !Not [!Equals [!Ref BackupPolicy, "AWS::NoValue"]]
-
 Resources:
   BackupPolicy:
     Type: "AWS::IAM::ManagedPolicy"
@@ -70,10 +67,7 @@ Resources:
     Properties:
       UserName: !Sub "s3-${Region}-${Environment}-${AppName}-backup"
       ManagedPolicyArns:
-        - !If
-          - CreatePolicy
-          - !Ref BackupPolicy
-          - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PolicyName}"
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PolicyName}"
       Tags:
         - Key: Environment
           Value: !Ref TagEnvironment

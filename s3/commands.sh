@@ -12,15 +12,18 @@ STACK_NAME="$1"
 REGION="${2:-ap-southeast-1}"  # Use ap-southeast-1 as default if not specified
 
 # Check if the policy already exists
-POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='plc-global-s3-backup'].Arn" --output text)
+POLICY_NAME="plc-global-s3-backup"
+POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='${POLICY_NAME}'].Arn" --output text)
 
-TEMPLATE_FILE="cloudformation/backup-stack.yaml"
 if [ ! -z "$POLICY_ARN" ]; then
-    echo "Policy already exists. Using existing policy."
+    echo "Policy already exists. Using existing policy: ${POLICY_ARN}"
     echo "Using region: ${REGION}"
-    # Comment out BackupPolicy resource in the template
-    sed '/BackupPolicy:/,/PolicyDocument:/c\  # BackupPolicy has been commented out as it already exists' "$TEMPLATE_FILE" > "cloudformation/backup-stack.tmp.yaml"
+
+    # Create a temporary template with BackupPolicy resource removed
+    sed '/BackupPolicy:/,/PolicyDocument:/d' cloudformation/backup-stack.yaml > cloudformation/backup-stack.tmp.yaml
     TEMPLATE_FILE="cloudformation/backup-stack.tmp.yaml"
+else
+    TEMPLATE_FILE="cloudformation/backup-stack.yaml"
 fi
 
 # Create the stack with inline parameters
@@ -31,7 +34,7 @@ aws cloudformation create-stack \
         ParameterKey=Environment,ParameterValue=p \
         ParameterKey=Region,ParameterValue="$REGION" \
         ParameterKey=AppName,ParameterValue="$STACK_NAME" \
-        ParameterKey=PolicyName,ParameterValue=plc-global-s3-backup \
+        ParameterKey=PolicyName,ParameterValue="$POLICY_NAME" \
         ParameterKey=TagEnvironment,ParameterValue=Production \
         ParameterKey=RetentionDays,ParameterValue=730 \
         ParameterKey=GlacierTransitionDays,ParameterValue=365 \
