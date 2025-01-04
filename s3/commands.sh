@@ -48,19 +48,33 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-while [ -z "${ACCESS_KEY_ID}" ]; do
-    sleep 5
-    # Store all credentials in variables
-    ACCESS_KEY_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`AccessKeyId`].OutputValue' --output text --region "$REGION")
-    SECRET_ACCESS_KEY=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`SecretAccessKey`].OutputValue' --output text --region "$REGION")
-    BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text --region "$REGION")
-    USER_ARN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`UserArn`].OutputValue' --output text --region "$REGION")
-done
+echo "Waiting for stack creation to complete..."
+
+# Wait for stack to complete
+aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME" --region "$REGION"
+
+if [ $? -ne 0 ]; then
+    echo "Stack creation failed"
+    exit 1
+fi
+
+echo "Stack creation completed. Fetching outputs..."
+
+# Get stack outputs
+ACCESS_KEY_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`AccessKeyId`].OutputValue' --output text --region "$REGION")
+SECRET_ACCESS_KEY=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`SecretAccessKey`].OutputValue' --output text --region "$REGION")
+BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text --region "$REGION")
+USER_ARN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`UserArn`].OutputValue' --output text --region "$REGION")
 
 # Cleanup temporary file if it exists
 [ -f "cloudformation/backup-stack.tmp.yaml" ] && rm cloudformation/backup-stack.tmp.yaml
 
 # Print the values
+if [ -z "$ACCESS_KEY_ID" ] || [ -z "$SECRET_ACCESS_KEY" ] || [ -z "$BUCKET_NAME" ] || [ -z "$USER_ARN" ]; then
+    echo "Failed to retrieve stack outputs"
+    exit 1
+fi
+
 cat << EOF
 ${BUCKET_NAME}:
   AccessKeyId: ${ACCESS_KEY_ID}
