@@ -2,12 +2,8 @@
 
 ## Remove the stack
 
-aws cloudformation delete-stack --stack-name s3-ap-southeast-1-s-web-app-backup --region ap-southeast-1
+`./s3/delete.sh s3-ap-southeast-1-s-web-app-backup`
 
-### Wait for the stack to be deleted
+## Create the stack
 
-aws cloudformation wait stack-delete-complete --stack-name s3-ap-southeast-1-s-web-app-backup --region ap-southeast-1
-
-### Now you can rerun the script
-
-./commands.sh s3-ap-southeast-1-s-web-app-backup
+`./s3/create.sh s3-ap-southeast-1-s-web-app-backup`
